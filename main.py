@@ -1,49 +1,42 @@
 # import
-import time
 import os
 import json
+import subprocess
+
+with open('watchdog.conf') as json_file:
+    data = json.load(json_file)
 
 
-# creation de fonction
-def ask(answer):
-    response = os.system('grep ' + answer + ' watchdog.conf | cut -d \\" -f 4')
-    return response
+def getWithKey(key):
+    b = []
+    for i in range(len(data)):
+        temp = data[i][key]
+        b.append(temp)
+    return b
 
 
-def getsize():
-    os.system('grep Name watchdog.conf | cut -d \\" -f 4 | wc -l')
-
+def checkIfTrue():
+    names = getWithKey("Name")
+    enabled = getWithKey("enable")
+    tab = []
+    for i in range(len(names)):
+        if enabled[i] == "true":
+            tab.append(names[i])
+    return tab
 
 if __name__ == "__main__":
+    tabletrue = checkIfTrue()
     # recuperation des process
-    # os.system('ps eaxco command')
-    # lecture du fichier conf voir qui est true ou false
-    # controle = ask("'enable'")
-    # if controle ==
-    controleName = ask("'Name'")
-    controleValue = ask("'enable'")
-    sizelist = getsize()
+    ps = subprocess.check_output(['ps', 'eaxco', 'command'], text=True)
 
-    # 1e étape
-    liste1 = []
-    liste2 = []
+    # mise en place des process dans une liste
+    process = ps.split('\n')
 
-    # 2e étape
-    for i in range(2):
-        liste1.append(controleName)
+    # compare les valeurs pour resortir
+    for pro in process:
+        for valeur in tabletrue:
+            if valeur == pro:
+                tabletrue.remove(valeur)
 
-    # 3e étape
-    print("Your first list : ", liste1)
-
-    # def myfunc(a, b):
-    #   return a + b
-
-#  print(liste1)
-# print(liste2)
-
-# x = map(myfunc, liste1, liste2)
-
-# print(x)
-
-# convert the map into a list, for readability:
-# print(list(x))
+    
+    json_file.close()
