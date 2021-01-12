@@ -4,6 +4,7 @@ import json
 import subprocess
 import time
 
+#Retourne sous forme d'un tableau tous les noms associé à la clé en parametre
 def getWithKey(key):
     b=[]
     for i in range(len(data)):
@@ -11,6 +12,8 @@ def getWithKey(key):
         b.append(temp)
     return b
 
+#Retourne dans un tableau le noms de tous les processus qu'on demande de surveiller
+#dans le watchdog.conf
 def checkIfTrue():
     names=getWithKey("Name")
     enabled=getWithKey("enable")
@@ -20,6 +23,7 @@ def checkIfTrue():
             tab.append(names[i])
     return tab
 
+#fait tout pareille qu'en et va surement degager
 def getAllWatchtimeFromTrue():
     names = getWithKey("watchtime")
     enabled = getWithKey("enable")
@@ -29,7 +33,9 @@ def getAllWatchtimeFromTrue():
             tab.append(names[i])
     return tab
 
-#launchprocess
+#launchprocess prend le mot le passe sudo en parametre ainsi que le noms du process
+# grace au nom il pourra retrouver le bin associé dans le watchdog pour 
+# lancer le processus
 def launchprocess(procss, mdp):
 
     tabName=getWithKey("Name")
@@ -43,12 +49,17 @@ def launchprocess(procss, mdp):
     cmd= "echo "+ mdp +" |  sudo -S " + bin + " start"
     os.system(cmd)
 
+
+# Demande le mot de passe sudo de l'utilisateur
 def askPasswd():
     print("Veuiilez entrer le mot de passe root : ")
     mdp=input()
     return mdp
 
 
+#relancerAllProcess parcours le tableau de tout les process qui doivent etre 
+# lancé et le compare avec le tableau des processus en cours d'excution,
+# s'il ne sont pas lancé, il les execute.
 def relanceAllProcess(tps,mdp):
     aRelancer = checkIfTrue()
     tabletTrue=removePros()
@@ -64,7 +75,7 @@ def relanceAllProcess(tps,mdp):
                 launchprocess(aRelancer[i],mdp)
 
 
-
+# removePos retourne sous forme d'un tableau tous les processus pas executé
 def removePros():
     tabletrue = checkIfTrue()
     # recuperation des process
@@ -81,7 +92,7 @@ def removePros():
 
     return tabletrue
 
-
+#main
 if __name__ == "__main__":
     with open('watchdog.conf') as json_file:
         data = json.load(json_file)
