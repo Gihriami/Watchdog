@@ -5,7 +5,7 @@ import subprocess
 import time
 
 
-#Retourne sous forme d'un tableau tous les noms associé à la clé en parametre
+#Retourne sous forme d'un tableau toutes les valeurs associé à la clé en parametre
 def getValueWithKey(key):
     value=[]
 
@@ -16,11 +16,13 @@ def getValueWithKey(key):
         value.append(temp)
     return value
 
+
+
 #Retourne sous forme d'un tableau les valeurs associé à la clé, mais uniquement celles dont la
 #valeur "enable" est à "true"
 def getValueEnable(key):
     # chargement des tableaux dont un avec toutes les valeurs
-    # de cles specifié et l'autre avec toutes les valeurs de enable, tous deux ordonées
+    # de cles specifié et l'autre avec toutes les valeurs de "enable", tous deux ordonées
     names=getValueWithKey(key)
     enabled=getValueWithKey("enable")
     tabNameEnable=[]
@@ -33,9 +35,10 @@ def getValueEnable(key):
     return tabNameEnable
 
 
-#launchprocess prend le mot le passe sudo en parametre ainsi que le noms du process
-# grace au nom il pourra retrouver le bin associé dans le watchdog pour
-# lancer le processus
+
+
+#launchprocess lance le processus en prennant en parametre son nom et le mot de passe sudo
+# de l'utilisateur, il relancera le binary du processus qu'il retrouvera grace à son nom
 def launchprocess(process, mdp):
 
     #Chargement de deux tableaux, l'un avec les noms et l'autre avec les "binary" du watchdog.conf
@@ -53,12 +56,15 @@ def launchprocess(process, mdp):
 
 
 
+
+
 # Demande le mot de passe sudo de l'utilisateur
 def askPasswd():
 
-    print("Veuillez entrer le mot de passe root : ")
+    print("Veuillez entrer le mot de passe sudo : ")
     passwd=input()
     return passwd
+
 
 
 
@@ -72,7 +78,6 @@ def restartAllProcess(tps,mdp):
     processToMonitor = getValueEnable("Name")
     tableTrue= getProcessDisable()
     allWatchtime= getValueEnable("watchtime")
-
 
 
     for i in range(len(processToMonitor)):
@@ -90,22 +95,23 @@ def restartAllProcess(tps,mdp):
 
 
 
+
 # removePos retourne sous forme d'un tableau tous les processus qui ne sont pas executé
 def getProcessDisable():
 
-    tabletrue = getValueEnable("Name")
-    # recuperation des process
+    tabProcessTrue = getValueEnable("Name")
+    # recuperation des processus
     ps = subprocess.check_output(['ps', 'eaxco', 'command'], text=True)
     # mise en place des process dans une liste
     process = ps.split('\n')
 
-    # compare les valeurs pour resortir
-    for pro in process:
-        for valeur in tabletrue:
-            if valeur == pro:
-                tabletrue.remove(valeur)
+    # compare les valeurs pour resortir un tableau des processus non lancé
+    for i in process:
+        for j in tabProcessTrue:
+            if j == i:
+                tabProcessTrue.remove(j)
 
-    return tabletrue
+    return tabProcessTrue
 
 
 
@@ -122,7 +128,6 @@ if __name__ == "__main__":
     while True:
         cpt+=1  #Incrementation du compteur
         time.sleep(1) #Stop la boucle une seconde
-        print(cpt)
         restartAllProcess(cpt, passwd) #Relance le processus si celui-ci n'est pas déjà éxécuté
 
     #fermeture du fichier Watchdog.conf
