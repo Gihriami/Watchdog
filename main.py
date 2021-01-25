@@ -90,6 +90,7 @@ def restartAllProcess(tps,mdp):
             #Si le processus apparait dans le tableau de processus non lancé et que "tempo" et
             # à 0, il le relance
             if (tableTrue[j]==processToMonitor[i] and tempo==0):
+                os.system("logger -t aRelancer "+processToMonitor[i]) #notifie le nom du processus planté dans /var/log/syslog
                 launchprocess(processToMonitor[i],mdp)
                 tableTrue=getProcessDisable() #Actualisation du Tableau des processus non lancé
 
